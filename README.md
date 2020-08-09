@@ -35,6 +35,7 @@ This is my attempt to build a media platform to learn microservices in action. T
 
  	* the user receives a link to track which can then be used for streaming.
 
+![alt text](https://github.com/safeer2978/Sunno-backend/Diagrams/HLD.PNG?raw=true)
 
 the entire backend is built using Spring Boot and the Media server is AWS S3 bucket where the media files are stored; these are accessed by the client through a CDN, in this case, AWS Cloudfront.
 

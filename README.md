@@ -1,6 +1,6 @@
 # _Sunno_ - A Spotify-like music streaming application backend using microservice architecture implemented in Spring Boot
 
-[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)]()
 
 This is my attempt to build a media platform to learn microservices in action. This is nowhere close to Spotify though I will try to continue improving/building new features on top of this.
 

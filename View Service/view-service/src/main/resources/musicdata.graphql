@@ -1,0 +1,36 @@
+schema{
+query: Query
+}
+
+type Query{
+    artists: [String]
+    genre: [String]
+
+    findTrackById(id: Int): MusicData
+
+    allTracks: [MusicData]
+    findTracksByAlbum(album: String): [MusicData]
+    findTracksByArtist(artist: String): [MusicData]
+    findTracksByGenre(genre: String): [MusicData]
+
+    tracks(artist: String, album: String, genre: String): [MusicData]
+
+
+    allAlbums: [String]
+    findAlbumsByArtist(artist: String): [String]
+    findAlbumByTrackId(title: String): String
+
+    allArtists: [String]
+    findArtistsByGenre: [String]
+    }
+
+type MusicData{
+  album: String
+  genre: String
+  title: String
+  artist: String
+  album_img: String
+  year: Int
+  track_number: Int
+  track_id: Int
+}

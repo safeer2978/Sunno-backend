@@ -16,6 +16,8 @@ The Track Data consists of the following entities:
 
 The relations between each of these entities given in the figure.
 
+![alt text](https://github.com/safeer2978/Sunno-backend/blob/master/Diagrams/view-service-datamodel.png)
+
 Each of the entity consists of an ID, Name and Image Url, along with the corresponding relationship attributes.
 
 In the case of an album, the issue is that album name cannot be a unique entity as several artists may have the same album name, hence to avoid duplication, a derived attribute called `combination` is made combining album name and artist_id. 

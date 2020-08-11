@@ -61,7 +61,7 @@ Besides these, there's an API gateway implemented using Netflix ZUUL and a servi
 
 there is also an upload application which runs on the resource owners system, which processes the music files to collect relevant track data, fetches free links to album covers, etc, and pushes the data to view service database for the user to browse and the music file to the AWS S3 bucket.
 
-Detailed documentation is available in README.md in the directory of each service.
+**Detailed documentation is available in README.md in the directory of each service.**
 
 ## Usage
 

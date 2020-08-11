@@ -1,0 +1,200 @@
+You can create a refresh token while generating the access token and persist in the database against that user. Here are the code changes that you need to do -
+
+JwtRefreshToken Model
+
+Create a JwtRefreshToken domain model:
+
+package com.example.polls.model;
+
+import javax.persistence.*;
+import java.time.Instant;
+
+@Entity
+@Table(name = "refresh_tokens")
+public class JwtRefreshToken {
+    @Id
+    private String token;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    private Instant expirationDateTime;
+
+    public JwtRefreshToken() {
+
+    }
+
+    public JwtRefreshToken(String token) {
+        this.token = token;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Instant getExpirationDateTime() {
+        return expirationDateTime;
+    }
+
+    public void setExpirationDateTime(Instant expirationDateTime) {
+        this.expirationDateTime = expirationDateTime;
+    }
+}
+JwtRefreshToken repository
+
+Create the repository for accessing the RefreshToken:
+
+package com.example.polls.repository;
+
+import com.example.polls.model.JwtRefreshToken;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface JwtRefreshTokenRepository extends JpaRepository<JwtRefreshToken, String> {
+
+}
+JwtAuthenticationResponse
+
+Add refreshToken and expiresInMsec fields to the Authentication response:
+
+package com.example.polls.payload;
+
+/**
+ * Created by rajeevkumarsingh on 19/08/17.
+ */
+public class JwtAuthenticationResponse {
+    private String accessToken;
+    private String refreshToken;
+    private String tokenType = "Bearer";
+    private Long expiresInMsec;
+
+    public JwtAuthenticationResponse(String accessToken, String refreshToken, Long expiresInMsec) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.expiresInMsec = expiresInMsec;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
+    }
+
+    public Long getExpiresInMsec() {
+        return expiresInMsec;
+    }
+
+    public void setExpiresInMsec(Long expiresInMsec) {
+        this.expiresInMsec = expiresInMsec;
+    }
+}
+JwtTokenProvider
+
+Add method to generate a refresh token:
+
+package com.example.polls.security;
+
+import io.jsonwebtoken.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+import java.util.UUID;
+
+@Component
+public class JwtTokenProvider {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
+
+    @Value("${app.jwtSecret}")
+    private String jwtSecret;
+
+    @Value("${app.jwtExpirationInMs}")
+    private long jwtExpirationInMs;
+
+    public String generateToken(UserPrincipal userPrincipal) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+
+        return Jwts.builder()
+                .setSubject(Long.toString(userPrincipal.getId()))
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
+    }
+
+    public String generateRefreshToken() {
+        // generate a random UUID as refresh token
+        return UUID.randomUUID().toString();
+    }
+
+    public Long getUserIdFromJWT(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
+
+        return Long.parseLong(claims.getSubject());
+    }
+
+    public boolean validateToken(String authToken) {
+        try {
+            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+            return true;
+        } catch (SignatureException ex) {
+            logger.error("Invalid JWT signature");
+        } catch (MalformedJwtException ex) {
+            logger.error("Invalid JWT token");
+        } catch (ExpiredJwtException ex) {
+            logger.error("Expired JWT token");
+        } catch (UnsupportedJwtException ex) {
+            logger.error("Unsupported JWT token");
+        } catch (IllegalArgumentException ex) {
+            logger.error("JWT claims string is empty.");
+        }
+        return false;
+    }
+}
+
+
+
+spring.security.oauth2.client.registration.google.redirect-uri=http://localhost:8080/oauth2/callback/google
+
+spring.security.oauth2.client.registration.google.client-id=878265540188-tbrtvcn99orgn5uth6qhakbllhcf9e0q.apps.googleusercontent.com
+spring.security.oauth2.client.registration.google.client-secret=cBVfMKae1Ea4_Ukl211GWhUU

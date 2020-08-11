@@ -1,0 +1,4 @@
+FROM java:8
+VOLUME /temp
+ADD target/sunno-euraka-naming-server-0.0.1-SNAPSHOT.jar sunno-euraka-naming-server-0.0.1-SNAPSHOT.jar
+ENTRYPOINT ["java","-jar","sunno-euraka-naming-server-0.0.1-SNAPSHOT.jar"]

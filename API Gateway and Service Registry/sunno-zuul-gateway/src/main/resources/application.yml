@@ -1,0 +1,9 @@
+zuul:
+  sensitiveHeaders: Cookie,Set-Cookie
+
+  eureka:
+    client:
+      registerWithEureka: true
+      fetchRegistry: true
+    instance:
+      hostname: eureka
